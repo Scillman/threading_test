@@ -313,7 +313,6 @@ public:
     };
 
 private:
-    std::mutex m_mutex;
     std::vector<ThreadMessage> m_queue;
 };
 
@@ -443,6 +442,8 @@ int main(int argc, char **argv)
 {
     g_messageMutex = std::make_shared<Mutex>();
 
+    auto start = std::chrono::high_resolution_clock::now();
+
     g_threadProducer.start(&func_producer);
     g_threadConsumer.start(&func_consumer);
 
@@ -453,6 +454,11 @@ int main(int argc, char **argv)
     g_threadConsumer.await();
 
     safeOut("Terminating main");
+
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double, std::milli> elapsed = end-start;
+    safeOut("Elapsed time: %g ms", elapsed.count());
 
     return 0;
 }
